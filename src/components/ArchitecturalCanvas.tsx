@@ -95,7 +95,7 @@ function LightingSystem({ climate, colorHex, floor }: { climate: Climate, colorH
   return (
     <>
       <primitive object={targetObj} />
-      <hemisphereLight skyColor={colorHex} groundColor={getAmbientBounceColor()} intensity={climate === 'Overcast' ? 1.3 : 0.35} />
+      <hemisphereLight color={colorHex} groundColor={getAmbientBounceColor()} intensity={...} />
       <pointLight ref={radiosityLight} color={getAmbientBounceColor()} position={[0, -2, -3]} distance={15} decay={2} />
       
       <SpotLight
