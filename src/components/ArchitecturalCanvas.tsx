@@ -10,6 +10,8 @@ interface CanvasProps {
   colorHex?: string;
   climate?: string;
   floor?: string;
+  finish?: string;
+}
 }
 
 // --- LIGHTING ENGINE ---
