@@ -12,7 +12,7 @@ interface CanvasProps {
   floor?: string;
   finish?: string;
 }
-}
+
 
 // --- LIGHTING ENGINE ---
 function LightingSystem({ colorHex = '#E5E7E6', climate = 'Clear Sunlight', floor = 'concrete' }: CanvasProps) {
