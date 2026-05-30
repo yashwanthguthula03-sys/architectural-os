@@ -1,0 +1,30 @@
+/* /src/systems/motion/membrane-integration.css */
+
+/* Attach this class to your main wrapper or body tag */
+.environmental-membrane {
+    /* Map architectural layers directly to the kernel's timing primitives */
+    --ui-transition: var(--duration-ui-compensation) var(--ease-atmospheric-settle) var(--emk-delay-ui-compensation, 0ms);
+    --light-transition: var(--duration-atmospheric-drift) var(--ease-atmospheric-settle) var(--emk-delay-atmospheric-drift, 0ms);
+    --bounce-transition: var(--duration-reflective-lag) var(--ease-reflective-lag) var(--emk-delay-reflective-bounce, 0ms);
+    --shadow-transition: var(--duration-thermal-decay) var(--ease-shadow-pressure) var(--emk-delay-shadow-pressure, 0ms);
+
+    /* Any element inside the membrane can inherit these transitions */
+}
+
+/* Example: How child elements hook into the OS timing */
+.membrane-typography {
+    transition: color var(--ui-transition), opacity var(--ui-transition);
+}
+
+.membrane-atmosphere {
+    transition: background var(--light-transition);
+}
+
+.membrane-shadows {
+    transition: box-shadow var(--shadow-transition);
+}
+
+/* Explicit non-linear execution overrides for thermal memory release */
+.environmental-membrane[data-state-shadow-pressure="cooling"] .membrane-shadows {
+    transition: box-shadow var(--duration-thermal-decay) var(--ease-thermal-release) var(--emk-delay-shadow-pressure, 0ms);
+}

@@ -1,79 +1,126 @@
 "use client";
 import React, { createContext, useContext, useState, useMemo } from 'react';
 
-// --- TYPES & DATA ---
-type RoomContext = 'North-Facing' | 'South-Facing' | 'Windowless';
-type Flooring = 'Warm Oak' | 'Polished Concrete' | 'Honed Slate';
+// --- 1. SYSTEM TYPES ---
+type Exposure = 'North-Facing' | 'South-Facing' | 'Windowless';
+type Flooring = 'Warm Oak' | 'Polished Concrete' | 'Dark Walnut';
 type Lighting = '2700K (Warm)' | '3000K (Neutral)' | '4000K (Cool)';
-type Paint = 'Pure White (Neutral)' | 'Evergreen Fog (Cool)' | 'Creamy White (Warm)';
+type Paint = 'Nordic Fog (High LRV)' | 'Evergreen Shadow (Low LRV)' | 'Warm Terracotta (Mid LRV)';
+type Finish = 'Ultra Matte' | 'Eggshell' | 'Limewash';
 
 interface EnvironmentState {
-  room: RoomContext;
+  exposure: Exposure;
   flooring: Flooring;
   lighting: Lighting;
   paint: Paint;
-  setRoom: (val: RoomContext) => void;
+  finish: Finish;
+  setExposure: (val: Exposure) => void;
   setFlooring: (val: Flooring) => void;
   setLighting: (val: Lighting) => void;
   setPaint: (val: Paint) => void;
-  diagnostics: {
-    acoustic: string;
-    thermal: string;
-    floorBounce: string;
-    spatial: string;
-  };
+  setFinish: (val: Finish) => void;
+  metrics: Record<string, number>;
+  advisories: string[];
 }
 
 const EnvironmentContext = createContext<EnvironmentState | undefined>(undefined);
 
 export function EnvironmentProvider({ children }: { children: React.ReactNode }) {
-  const [room, setRoom] = useState<RoomContext>('North-Facing');
+  // Base State
+  const [exposure, setExposure] = useState<Exposure>('North-Facing');
   const [flooring, setFlooring] = useState<Flooring>('Warm Oak');
   const [lighting, setLighting] = useState<Lighting>('3000K (Neutral)');
-  const [paint, setPaint] = useState<Paint>('Pure White (Neutral)');
+  const [paint, setPaint] = useState<Paint>('Nordic Fog (High LRV)');
+  const [finish, setFinish] = useState<Finish>('Ultra Matte');
 
-  // --- ORCHESTRATION ENGINE ---
-  const diagnostics = useMemo(() => {
-    let acoustic = "Standard reverberation profile.";
-    let thermal = "Balanced thermal perception.";
-    let floorBounce = "Neutral light diffusion.";
-    let spatial = "Standard spatial volume.";
+  // --- 2. THE ENVIRONMENTAL SCORING GRAPH ---
+  // Calculates the invisible dimensions of the room (0-100 scale, starting at 50 baseline)
+  const { metrics, advisories } = useMemo(() => {
+    let warmth = 50;
+    let diffusion = 50;
+    let reflectivity = 50;
+    let spatialExpansion = 50;
+    let visualWeight = 50;
 
-    // 1. Acoustic Profile
-    if (flooring === 'Polished Concrete' || flooring === 'Honed Slate') {
-      acoustic = "High reflectance hard-surface composition increases reverberation. Acoustic dampening elements are highly recommended.";
-    } else if (flooring === 'Warm Oak') {
-      acoustic = "Timber substrate softens structural reverberation, providing baseline acoustic calmness.";
+    // Apply Exposure Physics
+    if (exposure === 'North-Facing') { warmth -= 15; diffusion += 10; reflectivity -= 5; }
+    if (exposure === 'South-Facing') { warmth += 15; diffusion -= 5; reflectivity += 10; }
+    if (exposure === 'Windowless') { diffusion -= 20; spatialExpansion -= 10; visualWeight += 10; }
+
+    // Apply Flooring Physics
+    if (flooring === 'Dark Walnut') { warmth += 18; reflectivity -= 15; visualWeight += 20; spatialExpansion -= 12; }
+    if (flooring === 'Warm Oak') { warmth += 10; diffusion += 5; visualWeight -= 5; }
+    if (flooring === 'Polished Concrete') { warmth -= 10; reflectivity += 15; visualWeight += 5; }
+
+    // Apply Lighting Physics
+    if (lighting === '2700K (Warm)') { warmth += 20; diffusion += 5; reflectivity -= 5; }
+    if (lighting === '4000K (Cool)') { warmth -= 20; reflectivity += 10; visualWeight -= 10; }
+
+    // Apply Paint Physics
+    if (paint.includes('High LRV')) { spatialExpansion += 25; reflectivity += 20; visualWeight -= 15; }
+    if (paint.includes('Low LRV')) { spatialExpansion -= 25; reflectivity -= 25; visualWeight += 30; }
+
+    // Apply Finish Physics
+    if (finish === 'Ultra Matte') { diffusion += 15; reflectivity -= 18; visualWeight += 5; }
+    if (finish === 'Eggshell') { diffusion -= 5; reflectivity += 12; spatialExpansion += 5; }
+
+    // Normalize bounds between 0 and 100
+    const clamp = (val: number) => Math.max(0, Math.min(100, val));
+    const finalMetrics = {
+      warmth: clamp(warmth),
+      diffusion: clamp(diffusion),
+      reflectivity: clamp(reflectivity),
+      spatialExpansion: clamp(spatialExpansion),
+      visualWeight: clamp(visualWeight),
+    };
+
+    // --- 3. THRESHOLD LOGIC & EMOTIONAL TRANSLATION LAYER ---
+    const generatedAdvisories: string[] = [];
+
+    // The Compression Warning
+    if (finalMetrics.spatialExpansion < 40 && finalMetrics.reflectivity < 40) {
+      generatedAdvisories.push(
+        "This combination may feel visually heavy and compress the spatial footprint during overcast daylight conditions."
+      );
     }
 
-    // 2. Thermal / Perceptual Shift
-    if (room === 'North-Facing' && lighting === '4000K (Cool)' && paint.includes('Cool')) {
-      thermal = "Warning: Cool daylight combined with 4000K illumination amplifies cold undertones. Suggest shifting to 2700K or a warmer paint to prevent visual sterility.";
-    } else if (room === 'South-Facing' && lighting === '2700K (Warm)' && paint.includes('Warm')) {
-      thermal = "Heavy southern exposure combined with warm paint and 2700K lighting may cause visual fatigue and yellowing. Consider 3000K to neutralize.";
+    // The Clinical Warning
+    if (finalMetrics.warmth < 35 && finalMetrics.reflectivity > 60) {
+      generatedAdvisories.push(
+        "High reflectance combined with low thermal warmth risks creating a clinical, sterile atmosphere. Consider introducing amber light or timber elements."
+      );
     }
 
-    // 3. Floor Bounce Interaction
-    if (flooring === 'Warm Oak' && paint === 'Pure White (Neutral)') {
-      floorBounce = "Warm timber flooring will cast an amber bounce onto neutral walls, slightly warming the perceived undertone of the white paint.";
-    } else if (flooring === 'Polished Concrete') {
-      floorBounce = "Concrete introduces a gray/green bounce, which may flatten or muddy warm paint undertones.";
-    } else if (flooring === 'Honed Slate') {
-      floorBounce = "Dark slate absorbs ambient light, minimizing upward floor bounce and preserving true paint color.";
+    // The Glare Warning
+    if (finalMetrics.reflectivity > 80 && exposure === 'South-Facing') {
+      generatedAdvisories.push(
+        "Direct southern exposure paired with high-reflectance surfaces may induce visual fatigue and glare. A matte finish is recommended to scatter light."
+      );
     }
 
-    // 4. Spatial Expansion
-    if (paint.includes('Cool') && flooring === 'Honed Slate') {
-      spatial = "Low LRV dark flooring combined with cool walls physically compresses the space. Ensure heavy lumen output to counteract shadowing.";
-    } else if (paint === 'Pure White (Neutral)' && flooring !== 'Honed Slate') {
-      spatial = "High LRV walls maximize ambient light bounce, creating optimal visual openness and structural expansion.";
+    // The Cavern/Cozy Analysis
+    if (finalMetrics.visualWeight > 75 && finalMetrics.warmth > 60) {
+      generatedAdvisories.push(
+        "Deep tones and warm materials establish a highly grounded, cocooning environment ideal for evening intimacy, though it relies heavily on artificial illumination."
+      );
     }
 
-    return { acoustic, thermal, floorBounce, spatial };
-  }, [room, flooring, lighting, paint]);
+    // The Expansive Harmony (Positive Reinforcement)
+    if (finalMetrics.spatialExpansion > 70 && finalMetrics.warmth >= 40 && finalMetrics.warmth <= 60) {
+      generatedAdvisories.push(
+        "Excellent spatial harmony. High diffusion and balanced thermal perception optically expand the architecture without feeling detached."
+      );
+    }
+
+    return { metrics: finalMetrics, advisories: generatedAdvisories };
+  }, [exposure, flooring, lighting, paint, finish]);
 
   return (
-    <EnvironmentContext.Provider value={{ room, flooring, lighting, paint, setRoom, setFlooring, setLighting, setPaint, diagnostics }}>
+    <EnvironmentContext.Provider value={{ 
+      exposure, flooring, lighting, paint, finish, 
+      setExposure, setFlooring, setLighting, setPaint, setFinish, 
+      metrics, advisories 
+    }}>
       {children}
     </EnvironmentContext.Provider>
   );

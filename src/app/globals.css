@@ -1,31 +1,31 @@
-/* Tailwind Core Directives - DO NOT REMOVE */
 @import "tailwindcss";
-/* ======================================================
-  ARCHITECTURAL COLOR STUDIO - CUSTOM ANIMATIONS
-======================================================
-*/
-
-/* The "Breathing Light" Effect
-  Simulates slow sun movement and atmospheric dust.
-*/
-@keyframes sunBreathe {
-  0%, 100% {
-    opacity: 0.8;
-    transform: rotate(12deg) translateX(-25%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: rotate(12deg) translateX(-25%) scale(1.05);
-  }
+:root {
+    --bg-base: #0f0e0d; /* Slightly lighter, warmer studio grey/brown */
+    
+    /* Smooth Studio Lighting - No more radial banding */
+    --studio-wash: linear-gradient(180deg, rgba(30, 28, 25, 0.4) 0%, rgba(15, 14, 13, 1) 100%);
+    --studio-glow: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
 }
 
-.animate-sun-breathe {
-  /* 8 seconds creates a very slow, expensive-feeling pulse */
-  animation: sunBreathe 8s ease-in-out infinite;
-}
-
-/* Optional: Smooth out the default scrolling behavior */
-html,
 body {
-  scroll-behavior: smooth;
+    background-color: var(--bg-base);
+    color: #e5e5e5;
+    overflow: hidden;
+    /* Force high-end system fonts */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
+
+/* Anti-Banding Noise Layer 
+  This microscopic grain smooths out CSS gradients and adds physical texture.
+*/
+.anti-banding-grain {
+    position: fixed; inset: 0; z-index: 50; pointer-events: none;
+    opacity: 0.04; 
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Studio Environment Layers */
+.studio-background { background: var(--studio-wash); position: absolute; inset: 0; pointer-events: none; }
+.studio-side-glow { background: var(--studio-glow); position: absolute; inset: 0; pointer-events: none; }

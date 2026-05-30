@@ -1,0 +1,27 @@
+/* /src/systems/motion/tokens.css */
+
+:root {
+    /* =========================================================================
+       THE PERCEPTUAL TIMING HIERARCHY
+       ========================================================================= */
+    --duration-ui-compensation:   150ms;  
+    --duration-reflective-lag:    800ms;  
+    --duration-atmospheric-drift: 2400ms; 
+    --duration-thermal-decay:     3200ms; 
+
+    /* =========================================================================
+       THE ENVIRONMENTAL EASING CURVES
+       ========================================================================= */
+    
+    /* Extreme deceleration: Light moves rapidly initially, then breathes into place */
+    --ease-atmospheric-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Geometric resistance: Photons travel and strike surfaces before expanding */
+    --ease-reflective-lag: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Heavy compression: Shadows absorb energy slowly, then compress with volume */
+    --ease-shadow-pressure: cubic-bezier(0.76, 0, 0.24, 1);
+
+    /* The Sticky Curve: Holds chromatic intensity in low-energy pockets */
+    --ease-thermal-release: cubic-bezier(0.9, 0, 0.1, 1);
+}
